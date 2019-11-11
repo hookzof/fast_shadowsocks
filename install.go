@@ -3,11 +3,9 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net"
-	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
@@ -25,23 +23,10 @@ func cmd(cmd string) string {
 }
 
 func getTrueIP() string {
-	res, err := http.Get("https://v4.ident.me/")
-	if err != nil {
-		log.Println("[error]", err)
-		return ""
-	}
-
-	defer func() {
-		err := res.Body.Close()
-		if err != nil {
-			log.Println("[error]", err)
-		}
-	}()
-
-	ip, err := ioutil.ReadAll(res.Body)
-
-	if net.ParseIP(string(ip)) != nil && err == nil {
-		return string(ip)
+	ip := cmd("curl ifconfig.co -4")
+	ip = strings.Trim(ip, "\n")
+	if net.ParseIP(ip) != nil {
+		return ip
 	}
 
 	return ""
